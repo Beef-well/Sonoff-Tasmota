@@ -61,9 +61,9 @@ void ds18x20_search()
       ds->reset_search();
       break;
     }
-    // If CRC Ok and Type DS18S20 or DS18B20
+    // If CRC Ok and Type DS18S20, DS18B20 or MAX31850k
     if ((OneWire::crc8(ds18x20_addr[num_sensors], 7) == ds18x20_addr[num_sensors][7]) &&
-       ((ds18x20_addr[num_sensors][0]==0x10) || (ds18x20_addr[num_sensors][0]==0x28)))
+       ((ds18x20_addr[num_sensors][0]==0x10) || (ds18x20_addr[num_sensors][0]==0x28) || (ds18x20_addr[num_sensors][0]==0x3B) ))
        num_sensors++;
   }
   for (int i = 0; i < num_sensors; i++) ds18x20_idx[i] = i;
@@ -152,6 +152,10 @@ boolean ds18x20_read(uint8_t sensor, bool S, float &t)
       t = ((data[1] << 8) + data[0]) * 0.0625;
       if(S) t = ds18x20_convertCtoF(t);
       break;
+    case 0x3B:  // MAX3150K
+      t = ((data[1] << 8) + data[0]) * 0.0625;
+      if(S) t = ds18x20_convertCtoF(t);
+      break;    
     }
   }
   return (!isnan(t));
@@ -171,6 +175,9 @@ void ds18x20_type(uint8_t sensor)
   case 0x28:
     strcpy_P(dsbstype, PSTR("DS18B20"));
     break;
+  case 0x3B:
+    strcpy_P(dsbstype, PSTR("DS18B20"));
+    break;    
   }
 }
 
